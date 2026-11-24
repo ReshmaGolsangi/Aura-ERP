@@ -18,6 +18,18 @@ N = ParagraphStyle("n", parent=_base, fontSize=9, leading=12)
 SM = ParagraphStyle("sm", parent=_base, fontSize=8.5, leading=11)
 RIGHT = ParagraphStyle("r", parent=N, alignment=2)
 
+# Default logo location: backend/assets/aura-logo.png (this file lives in backend/erp/)
+DEFAULT_LOGO = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "aura-logo.png")
+
+
+def logo_flowable(width=38 * mm, height=16 * mm):
+    """Return a reportlab Image of the company logo, or None if no logo file is found.
+    Uses settings.COMPANY_LOGO if set and valid, otherwise backend/assets/aura-logo.png."""
+    for path in (getattr(settings, "COMPANY_LOGO", ""), DEFAULT_LOGO):
+        if path and os.path.exists(str(path)):
+            return Image(str(path), width=width, height=height, kind="proportional", hAlign="LEFT")
+    return None
+
 
 def fmt(v):
     """Indian digit grouping: 1,23,456.00 (Helvetica has no rupee glyph, so we print 'Rs.')."""
@@ -40,9 +52,14 @@ def build_pdf(title, meta, party_title, party_lines, items, totals, blocks=()):
     doc = SimpleDocTemplate(buf, pagesize=A4, leftMargin=14 * mm, rightMargin=14 * mm,
                             topMargin=12 * mm, bottomMargin=14 * mm, title=title)
     s = settings
-    left = Paragraph(f"<b><font size=14>{escape(s.COMPANY_NAME)}</font></b><br/>"
-                     f"{escape(s.COMPANY_ADDRESS).replace(chr(10), '<br/>')}<br/>GSTIN: {escape(s.COMPANY_GSTIN)}<br/>"
-                     f"{escape(s.COMPANY_EMAIL)} | {escape(s.COMPANY_PHONE)}", SM)
+    left_text = Paragraph(f"<b><font size=14>{escape(s.COMPANY_NAME)}</font></b><br/>"
+                          f"{escape(s.COMPANY_ADDRESS).replace(chr(10), '<br/>')}<br/>GSTIN: {escape(s.COMPANY_GSTIN)}<br/>"
+                          f"{escape(s.COMPANY_EMAIL)} | {escape(s.COMPANY_PHONE)}", SM)
+    left = [left_text]
+    logo = logo_flowable()
+    if logo:
+        left.insert(0, logo)
+        left.insert(1, Spacer(1, 3))
     right = Paragraph(f"<para align=right><b><font size=16 color='#1e3a5f'>{escape(title)}</font></b></para>", N)
     el = [Table([[left, right]], colWidths=[112 * mm, 70 * mm],
                 style=[("VALIGN", (0, 0), (-1, -1), "TOP"), ("LINEBELOW", (0, 0), (-1, 0), 1.2, BLUE)]), Spacer(1, 8)]
@@ -125,9 +142,10 @@ def build_po_pdf(po_no, meta, vendor_lines, deliver_lines, items, intra_state, n
     comp = [Paragraph(f"<b><font size=13>{escape(s.COMPANY_NAME)}</font></b><br/>"
                       f"{escape(s.COMPANY_ADDRESS).replace(chr(10), '<br/>')}<br/>GSTIN {escape(s.COMPANY_GSTIN)}<br/>"
                       f"{escape(s.COMPANY_EMAIL)}", SM)]
-    logo = getattr(s, "COMPANY_LOGO", "")
-    if logo and os.path.exists(logo):
-        comp.insert(0, Image(logo, width=38 * mm, height=16 * mm, kind="proportional", hAlign="LEFT"))
+    logo = logo_flowable()
+    if logo:
+        comp.insert(0, logo)
+        comp.insert(1, Spacer(1, 3))
     title = Paragraph("<para align=right><font size=20>Purchase Order</font><br/>"
                       f"<font size=10 color='#64748b'>PO# </font><b><font size=11>{escape(po_no)}</font></b></para>", N)
     el += [Table([[comp, title]], colWidths=[100 * mm, 82 * mm], style=[("VALIGN", (0, 0), (-1, -1), "TOP")]),

@@ -1,6 +1,6 @@
 // App shell: login guard, top navigation, and routes.
 import React, { useEffect, useState } from 'react';
-import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
+import { Link, NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import api from './api';
 import Login from './pages/Login.jsx';
 import Dashboard from './pages/Dashboard.jsx';
@@ -78,7 +78,14 @@ export default function App() {
   return (
     <>
       <nav>
-        <b style={{ marginRight: 12 }}>Aura ERP</b>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', marginRight: 14, textDecoration: 'none' }}>
+          <img
+            src="/aura-logo.png"
+            alt="Aura"
+            style={{ height: 34, width: 'auto', marginRight: 8, display: 'block' }}
+          />
+          <b>Aura ERP</b>
+        </Link>
         <NavLink to="/">Dashboard</NavLink><NavLink to="/quotations">Quotations</NavLink>
         <NavLink to="/customers">Customers</NavLink><NavLink to="/products">Products</NavLink>
         <NavLink to="/billing">Billing</NavLink>
