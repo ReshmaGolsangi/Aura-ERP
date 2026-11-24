@@ -1,0 +1,35 @@
+[35mbackend/config/settings.py[m[36m:[m[32m75[m[36m:[m# ---- Company details printed on every [1;31mPDF[m (override with env vars) ----
+[35mbackend/erp/documents.py[m[36m:[m[32m1[m[36m:[m"""Builds each business document ([1;31mPDF[m + email/WhatsApp details) and sends it."""
+[35mbackend/erp/documents.py[m[36m:[m[32m16[m[36m:[mfrom .[1;31mpdf[m import build_[1;31mpdf[m, build_po_[1;31mpdf[m
+[35mbackend/erp/documents.py[m[36m:[m[32m44[m[36m:[m    [1;31mpdf[m = build_[1;31mpdf[m("QUOTATION",
+[35mbackend/erp/documents.py[m[36m:[m[32m49[m[36m:[m    return dict(filename=_safe(f"{q.number}-R{r.rev_no}") + ".[1;31mpdf[m", [1;31mpdf[m=[1;31mpdf[m, email=q.customer.email, phone=q.customer.phone,
+[35mbackend/erp/documents.py[m[36m:[m[32m59[m[36m:[m    [1;31mpdf[m = build_[1;31mpdf[m("PROFORMA INVOICE",
+[35mbackend/erp/documents.py[m[36m:[m[32m64[m[36m:[m    return dict(filename=_safe(p.number) + ".[1;31mpdf[m", [1;31mpdf[m=[1;31mpdf[m, email=q.customer.email, phone=q.customer.phone,
+[35mbackend/erp/documents.py[m[36m:[m[32m71[m[36m:[m    [1;31mpdf[m = build_[1;31mpdf[m("PAYMENT RECEIPT",
+[35mbackend/erp/documents.py[m[36m:[m[32m78[m[36m:[m    return dict(filename=_safe(rc.number) + ".[1;31mpdf[m", [1;31mpdf[m=[1;31mpdf[m, email=q.customer.email, phone=q.customer.phone,
+[35mbackend/erp/documents.py[m[36m:[m[32m84[m[36m:[m    """Zoho-style purchase order (see [1;31mpdf[m.build_po_[1;31mpdf[m)."""
+[35mbackend/erp/documents.py[m[36m:[m[32m87[m[36m:[m    [1;31mpdf[m = build_po_[1;31mpdf[m(
+[35mbackend/erp/documents.py[m[36m:[m[32m95[m[36m:[m    return dict(filename=_safe(po.number) + ".[1;31mpdf[m", [1;31mpdf[m=[1;31mpdf[m, email=d.email, phone=d.phone,
+[35mbackend/erp/documents.py[m[36m:[m[32m107[m[36m:[m    m.attach(d["filename"], d["[1;31mpdf[m"], "application/[1;31mpdf[m")
+[35mbackend/erp/documents.py[m[36m:[m[32m121[m[36m:[m    up = requests.post(base + "/media", headers=h, data={"messaging_product": "whatsapp", "type": "application/[1;31mpdf[m"},
+[35mbackend/erp/documents.py[m[36m:[m[32m122[m[36m:[m                       files={"file": (d["filename"], d["[1;31mpdf[m"], "application/[1;31mpdf[m")}, timeout=30)
+[35mbackend/erp/documents.py[m[36m:[m[32m132[m[36m:[m    """Adds GET <id>/[1;31mpdf[m/ and POST <id>/send/ to any viewset. Set doc_builder = staticmethod(fn)."""
+[35mbackend/erp/documents.py[m[36m:[m[32m136[m[36m:[m    def [1;31mpdf[m(self, request, pk=None):
+[35mbackend/erp/documents.py[m[36m:[m[32m138[m[36m:[m        resp = HttpResponse(d["[1;31mpdf[m"], content_type="application/[1;31mpdf[m")
+[35mbackend/erp/pdf.py[m[36m:[m[32m1[m[36m:[m"""One [1;31mPDF[m layout (Zoho-style) reused for quotation, proforma, receipt and purchase order."""
+[35mbackend/erp/pdf.py[m[36m:[m[32m9[m[36m:[mfrom [1;31mreportlab[m.lib import colors
+[35mbackend/erp/pdf.py[m[36m:[m[32m10[m[36m:[mfrom [1;31mreportlab[m.lib.pagesizes import A4
+[35mbackend/erp/pdf.py[m[36m:[m[32m11[m[36m:[mfrom [1;31mreportlab[m.lib.styles import ParagraphStyle, getSampleStyleSheet
+[35mbackend/erp/pdf.py[m[36m:[m[32m12[m[36m:[mfrom [1;31mreportlab[m.lib.units import mm
+[35mbackend/erp/pdf.py[m[36m:[m[32m13[m[36m:[mfrom [1;31mreportlab[m.platypus import Image, Paragraph, [1;31mSimpleDocTemplate[m, Spacer, Table, TableStyle
+[35mbackend/erp/pdf.py[m[36m:[m[32m36[m[36m:[mdef build_[1;31mpdf[m(title, meta, party_title, party_lines, items, totals, blocks=()):
+[35mbackend/erp/pdf.py[m[36m:[m[32m40[m[36m:[m    doc = [1;31mSimpleDocTemplate[m(buf, pagesize=A4, leftMargin=14 * mm, rightMargin=14 * mm,
+[35mbackend/erp/pdf.py[m[36m:[m[32m114[m[36m:[mdef build_po_[1;31mpdf[m(po_no, meta, vendor_lines, deliver_lines, items, intra_state, notes="", terms=""):
+[35mbackend/erp/pdf.py[m[36m:[m[32m119[m[36m:[m    doc = [1;31mSimpleDocTemplate[m(buf, pagesize=A4, leftMargin=14 * mm, rightMargin=14 * mm,
+[35mfrontend/src/pages/Billing.jsx[m[36m:[m[32m3[m[36m:[mimport api, { inr, open[1;31mPdf[m, sendDoc } from '../api';
+[35mfrontend/src/pages/Billing.jsx[m[36m:[m[32m29[m[36m:[m              <td><button className="sm sec" onClick={() => open[1;31mPdf[m(`proformas/${p.id}/`)}>[1;31mPDF[m</button>{' '}
+[35mfrontend/src/pages/Billing.jsx[m[36m:[m[32m50[m[36m:[m              <td><button className="sm sec" onClick={() => open[1;31mPdf[m(`receipts/${r.id}/`)}>[1;31mPDF[m</button>{' '}
+[35mfrontend/src/pages/PurchaseOrders.jsx[m[36m:[m[32m3[m[36m:[mimport api, { inr, open[1;31mPdf[m, sendDoc } from '../api';
+[35mfrontend/src/pages/PurchaseOrders.jsx[m[36m:[m[32m67[m[36m:[m            <td><button className="sm" onClick={() => edit(po)}>Edit</button> <button className="sm sec" onClick={() => open[1;31mPdf[m(`purchase-orders/${po.id}/`)}>[1;31mPDF[m</button>{' '}
+[35mfrontend/src/pages/Quotations.jsx[m[36m:[m[32m3[m[36m:[mimport api, { inr, open[1;31mPdf[m, sendDoc } from '../api';
+[35mfrontend/src/pages/Quotations.jsx[m[36m:[m[32m97[m[36m:[m                <button className="sm sec" onClick={() => open[1;31mPdf[m(`quotations/${q.id}/`)}>[1;31mPDF[m</button>{' '}
