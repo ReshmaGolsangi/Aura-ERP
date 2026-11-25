@@ -63,7 +63,8 @@ export default function CrudPage({ cfg, me }) {
         </div>
       )}
       <table style={{ marginTop: 12 }}>
-        <thead><tr>{cfg.columns.map((c) => <th key={c}>{c.replace('_', ' ')}</th>)}<th /></tr></thead>
+        <thead><tr>{cfg.columns.map((c) => <th key={c}>{c.replace(/_/g, ' ').replace(/\b\w/g, (m) => m.toUpperCase())}</th>)}<th /></tr></thead>
+                  
         <tbody>{rows.map((r) => (
           <tr key={r.id}>
             {cfg.columns.map((c) => <td key={c}>{String(show(r[c]) ?? '')}</td>)}

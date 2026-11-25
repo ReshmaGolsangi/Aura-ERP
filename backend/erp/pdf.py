@@ -62,8 +62,8 @@ def build_pdf(title, meta, party_title, party_lines, items, totals, blocks=()):
         left.insert(1, Spacer(1, 3))
     right = Paragraph(f"<para align=right><b><font size=16 color='#1e3a5f'>{escape(title)}</font></b></para>", N)
     el = [Table([[left, right]], colWidths=[112 * mm, 70 * mm],
-                style=[("VALIGN", (0, 0), (-1, -1), "TOP"), ("LINEBELOW", (0, 0), (-1, 0), 1.2, BLUE)]), Spacer(1, 8)]
-
+                 style=[("VALIGN", (0, 0), (-1, -1), "TOP"), ("BOTTOMPADDING", (0, 0), (-1, -1), 3 * mm),
+                       ("LINEBELOW", (0, 0), (-1, 0), 1.2, BLUE)]), Spacer(1, 8)]
     party = Paragraph(f"<b>{escape(party_title)}</b><br/>" + "<br/>".join(escape(x) for x in party_lines if x), N)
     metap = Paragraph("<br/>".join(f"<b>{escape(k)}:</b> {escape(str(v))}" for k, v in meta if v not in (None, "")), N)
     el += [Table([[party, metap]], colWidths=[100 * mm, 82 * mm], style=[("VALIGN", (0, 0), (-1, -1), "TOP")]), Spacer(1, 10)]
